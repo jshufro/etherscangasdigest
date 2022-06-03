@@ -1,0 +1,21 @@
+{
+  "name": "markotaxes",
+  "version": "0.0.1",
+  "description": "Provides a break down of gas fees in eth and USD for a given wallet",
+  "main": "index.js",
+  "scripts": {
+    "main": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "0xPatches.eth",
+  "license": "ISC",
+  "devDependencies": {
+    "config": "^3.3.7",
+    "cryptocompare": "^1.0.0",
+    "debug": "^4.3.4",
+    "etherscan-api": "^10.0.9",
+    "node-fetch": "^2.6.7",
+    "readline-sync": "^1.4.10",
+    "yargs": "^17.5.1"
+  }
+}
