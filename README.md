@@ -31,9 +31,9 @@ $ ./main.js
 main.js [command]
 
 Commands:
-  main.js csv <address>      Print transactions with gas fees as csv
-  main.js monthly <address>  Print transactions with gas fees broken down by
-                             month
+  main.js csv <address...>      Print transactions with gas fees as csv
+  main.js monthly <address...>  Print transactions with gas fees broken down by
+                                month
 
 Options:
   --version  Show version number                                       [boolean]

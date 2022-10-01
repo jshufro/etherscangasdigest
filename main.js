@@ -52,8 +52,8 @@ async function getEtherPrice(date, memo) {
 
 (async () => {
   const argv = yargs
-    .command('csv <address>', 'Print transactions with gas fees as csv')
-    .command('monthly <address>', 'Print transactions with gas fees broken down by month')
+    .command('csv <address...>', 'Print transactions with gas fees as csv')
+    .command('monthly <address...>', 'Print transactions with gas fees broken down by month')
     .help('help')
     .string('address')
     .argv
@@ -63,26 +63,31 @@ async function getEtherPrice(date, memo) {
 
   cc.setApiKey(config.get("cryptocompare_key"));
 
-  const addr = argv.address;
+  const addrs = argv.address;
+  var txs = [];
 
-  var txs = await getTxsForAddr(addr, 0, await etherscan.proxy.eth_blockNumber());
+  for (const addr of addrs) {
+    var addr_txs = await getTxsForAddr(addr, 0, await etherscan.proxy.eth_blockNumber());
 
-  // Filter out inbound transactions
-  var txs = txs.filter(tx => {
-    return tx.from.toLowerCase() == addr.toLowerCase();
-  });
+    // Filter out inbound transactions
+    addr_txs = addr_txs.filter(tx => {
+      return tx.from.toLowerCase() == addr.toLowerCase();
+    });
 
-  // Map to a new object with the relevant fields (nonce, hash, gasPrice * gasUsed, timestamp)
-  var txs = txs.map(tx => {
-    const out = 
-      {
-        "nonce": tx.nonce,
-        "hash": tx.hash,
-        "feeWei": tx.gasPrice * tx.gasUsed,
-        "date": (new Date(1000*parseInt(tx.timeStamp))).toISOString().slice(0,10)
-      }
-    return out;
-  });
+    // Map to a new object with the relevant fields (nonce, hash, gasPrice * gasUsed, timestamp)
+    addr_txs = addr_txs.map(tx => {
+      const out =
+        {
+          "nonce": tx.nonce,
+          "sender": addr,
+          "hash": tx.hash,
+          "feeWei": tx.gasPrice * tx.gasUsed,
+          "date": (new Date(1000*parseInt(tx.timeStamp))).toISOString().slice(0,10)
+        }
+      return out;
+    });
+    txs = txs.concat(addr_txs);
+  };
 
   if (txs.length == 0)
     return console.log("No transactions found");
@@ -101,8 +106,8 @@ async function getEtherPrice(date, memo) {
   txs.sort((a,b) => { return a.nonce - b.nonce });
 
   if (argv._[0] == 'csv') {
-    console.log("date,nonce,hash,feeWei,ethPriceUSD,gasCostUSD");
-    const rows = txs.map(tx => { return `${tx["date"]},${tx["nonce"]},${tx["hash"]},${tx["feeWei"]},${tx["ethPriceUSD"]},${tx["gasCostUSD"]}` });
+    console.log("date,nonce,sender,hash,feeWei,ethPriceUSD,gasCostUSD");
+    const rows = txs.map(tx => { return `${tx["date"]},${tx["nonce"]},${tx["sender"]},${tx["hash"]},${tx["feeWei"]},${tx["ethPriceUSD"]},${tx["gasCostUSD"]}` });
     console.log(rows.join("\n"));
     return;
   }
