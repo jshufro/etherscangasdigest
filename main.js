@@ -103,7 +103,11 @@ async function getEtherPrice(date, memo) {
   }
 
   txs = Object.values(d);
-  txs.sort((a,b) => { return a.nonce - b.nonce });
+  txs.sort((a,b) => {
+    if (a.sender == b.sender)
+      return a.nonce - b.nonce
+    return a.sender == b.sender ? 0 : ((a.sender > b.sender ? 1 : -1))
+  });
 
   if (argv._[0] == 'csv') {
     console.log("date,nonce,sender,hash,feeWei,ethPriceUSD,gasCostUSD");
